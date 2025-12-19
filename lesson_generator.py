@@ -497,6 +497,333 @@ IMPORTANT:
             'environment': "Discuss how scientific understanding leads to sustainable solutions and environmental conservation, connecting to UAE's sustainability initiatives."
         }
     
-    # Rest of your document creation functions remain the same
-    # [Keep all your existing create_lesson_plan_document, create_worksheets, etc. functions]
-
+    def create_lesson_plan_document(self, lesson_data, ai_content):
+        """Create comprehensive lesson plan Word document"""
+        doc = Document()
+        
+        # Set document margins
+        sections = doc.sections
+        for section in sections:
+            section.top_margin = Inches(0.5)
+            section.bottom_margin = Inches(0.5)
+            section.left_margin = Inches(0.7)
+            section.right_margin = Inches(0.7)
+        
+        # Title
+        title = doc.add_heading('AL ADHWA PRIVATE SCHOOL', 0)
+        title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        title_run = title.runs[0]
+        title_run.font.size = Pt(16)
+        title_run.font.bold = True
+        title_run.font.color.rgb = RGBColor(0, 51, 102)
+        
+        subtitle = doc.add_heading('LESSON PLAN', 1)
+        subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        
+        # Basic Information Table
+        info_table = doc.add_table(rows=2, cols=3)
+        info_table.style = 'Table Grid'
+        
+        info_cells_row1 = info_table.rows[0].cells
+        info_cells_row1[0].text = f"Date: {lesson_data['date']}\nSemester: {lesson_data['semester']}"
+        info_cells_row1[1].text = f"Grade: {lesson_data['grade']}\nSubject: {lesson_data['subject']}"
+        info_cells_row1[2].text = f"Topic: {lesson_data['topic']}\nPeriod: {lesson_data['period']}"
+        
+        info_cells_row2 = info_table.rows[1].cells
+        info_cells_row2[0].text = f"Value: {lesson_data['value']}"
+        info_cells_row2[1].text = f"Skills: {', '.join(ai_content['skills'])}"
+        info_cells_row2[2].text = f"Standards: {', '.join(lesson_data['standards']) if lesson_data['standards'] else 'N/A'}"
+        
+        doc.add_paragraph()
+        
+        # Lesson Objectives
+        doc.add_heading('LESSON OBJECTIVES', 2)
+        doc.add_paragraph(ai_content['objectives'])
+        
+        # Differentiated Outcomes
+        doc.add_heading('DIFFERENTIATED LESSON OUTCOMES', 2)
+        for level, outcome in ai_content['differentiated_outcomes'].items():
+            p = doc.add_paragraph(style='List Bullet')
+            p.add_run(f"{level.title()}: ").bold = True
+            p.add_run(outcome)
+        
+        # Vocabulary and Resources
+        vocab_resources_table = doc.add_table(rows=1, cols=2)
+        vocab_resources_table.style = 'Table Grid'
+        
+        vocab_cell = vocab_resources_table.rows[0].cells[0]
+        vocab_cell.add_paragraph().add_run('KEY VOCABULARY').bold = True
+        for word in ai_content['vocabulary']:
+            vocab_cell.add_paragraph(word, style='List Bullet')
+        
+        resources_cell = vocab_resources_table.rows[0].cells[1]
+        resources_cell.add_paragraph().add_run('RESOURCES REQUIRED').bold = True
+        for resource in ai_content['resources']:
+            resources_cell.add_paragraph(resource, style='List Bullet')
+        
+        doc.add_paragraph()
+        
+        # ADEK Integration
+        doc.add_heading('UAE/ADEK INTEGRATION', 2)
+        
+        adek_table = doc.add_table(rows=1, cols=5)
+        adek_table.style = 'Table Grid'
+        
+        adek_cells = adek_table.rows[0].cells
+        adek_cells[0].add_paragraph().add_run('My Identity').bold = True
+        adek_cells[0].add_paragraph(ai_content['adek_integration']['my_identity'])
+        
+        adek_cells[1].add_paragraph().add_run('Moral Education').bold = True
+        adek_cells[1].add_paragraph(f"Pillar: {ai_content['adek_integration']['moral_education']['pillar']}")
+        adek_cells[1].add_paragraph(ai_content['adek_integration']['moral_education']['connection'])
+        
+        adek_cells[2].add_paragraph().add_run('STEAM').bold = True
+        for key, value in ai_content['adek_integration']['steam'].items():
+            adek_cells[2].add_paragraph(f"{key.upper()}: {value}")
+        
+        adek_cells[3].add_paragraph().add_run('Links to Subjects').bold = True
+        adek_cells[3].add_paragraph(ai_content['adek_integration']['links_to_subjects'])
+        
+        adek_cells[4].add_paragraph().add_run('Environment').bold = True
+        adek_cells[4].add_paragraph(ai_content['adek_integration']['environment'])
+        
+        doc.add_paragraph()
+        
+        # Lesson Structure
+        doc.add_heading('LESSON STRUCTURE', 2)
+        
+        # Starter
+        doc.add_heading('Starter/Prior Knowledge (5 minutes)', 3)
+        doc.add_paragraph(ai_content['starter']['activity'])
+        for q in ai_content['starter']['questions']:
+            doc.add_paragraph(q, style='List Bullet')
+        
+        # Teaching Component
+        doc.add_heading('Teaching Component (10 minutes MAXIMUM)', 3)
+        doc.add_paragraph(f"Method: {ai_content['teaching_component']['method']}")
+        for step in ai_content['teaching_component']['steps']:
+            doc.add_paragraph(step, style='List Bullet')
+        
+        # Activities
+        doc.add_heading('Activities: Cooperative & Independent Tasks (30 minutes)', 3)
+        
+        # Create differentiation table
+        diff_table = doc.add_table(rows=3, cols=4)
+        diff_table.style = 'Table Grid'
+        
+        # Header row
+        header_cells = diff_table.rows[0].cells
+        header_cells[0].text = ""
+        header_cells[1].text = "Upper Ability (DOK 3-4)"
+        header_cells[2].text = "Average/Middle (DOK 2-3)"
+        header_cells[3].text = "Those Needing Assistance (DOK 1-2)"
+        
+        # Cooperative tasks row
+        coop_cells = diff_table.rows[1].cells
+        coop_cells[0].text = "Cooperative Task\n(15 min)"
+        coop_cells[1].text = ai_content['cooperative_tasks']['upper']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['cooperative_tasks']['upper']['questions']) + f"\n\nV/A/K: {ai_content['cooperative_tasks']['upper']['vak']}"
+        coop_cells[2].text = ai_content['cooperative_tasks']['average']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['cooperative_tasks']['average']['questions']) + f"\n\nV/A/K: {ai_content['cooperative_tasks']['average']['vak']}"
+        coop_cells[3].text = ai_content['cooperative_tasks']['assistance']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['cooperative_tasks']['assistance']['questions']) + f"\n\nV/A/K: {ai_content['cooperative_tasks']['assistance']['vak']}"
+        
+        # Independent tasks row
+        indep_cells = diff_table.rows[2].cells
+        indep_cells[0].text = "Independent Task\n(15 min)"
+        indep_cells[1].text = ai_content['independent_tasks']['upper']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['independent_tasks']['upper']['questions']) + f"\n\nV/A/K: {ai_content['independent_tasks']['upper']['vak']}"
+        indep_cells[2].text = ai_content['independent_tasks']['average']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['independent_tasks']['average']['questions']) + f"\n\nV/A/K: {ai_content['independent_tasks']['average']['vak']}"
+        indep_cells[3].text = ai_content['independent_tasks']['assistance']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['independent_tasks']['assistance']['questions']) + f"\n\nV/A/K: {ai_content['independent_tasks']['assistance']['vak']}"
+        
+        # Gifted/Talented row if enabled
+        if lesson_data['gifted_talented'] and 'gifted' in ai_content['cooperative_tasks']:
+            gifted_row = diff_table.add_row()
+            gifted_row.cells[0].text = "Gifted/Talented\n(DOK 4)"
+            gifted_row.cells[1].merge(gifted_row.cells[3])
+            gifted_row.cells[1].text = "COOPERATIVE: " + ai_content['cooperative_tasks']['gifted']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['cooperative_tasks']['gifted']['questions']) + f"\n\nV/A/K: {ai_content['cooperative_tasks']['gifted']['vak']}" + "\n\n" + "INDEPENDENT: " + ai_content['independent_tasks']['gifted']['activity'] + "\n\nQuestions:\n" + "\n".join(ai_content['independent_tasks']['gifted']['questions']) + f"\n\nV/A/K: {ai_content['independent_tasks']['gifted']['vak']}"
+        
+        doc.add_paragraph()
+        
+        # Plenary
+        doc.add_heading('Plenary (5 minutes)', 3)
+        doc.add_paragraph(ai_content['plenary']['activity'])
+        for q in ai_content['plenary']['questions']:
+            doc.add_paragraph(q, style='List Bullet')
+        
+        # World Application
+        doc.add_heading('Application to World Outside Classroom', 3)
+        doc.add_paragraph(ai_content['world_application'])
+        
+        # Save document
+        filename = f"LessonPlan_{lesson_data['subject']}_{lesson_data['topic'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.docx"
+        output_path = os.path.join(self.output_folder, filename)
+        doc.save(output_path)
+        
+        return output_path
+    
+    def create_worksheets(self, lesson_data, ai_content):
+        """Create differentiated worksheets"""
+        doc = Document()
+        
+        doc.add_heading('DIFFERENTIATED WORKSHEETS', 0)
+        doc.add_heading(f'Topic: {lesson_data["topic"]}', 1)
+        doc.add_paragraph(f'Grade: {lesson_data["grade"]} | Subject: {lesson_data["subject"]}')
+        
+        # Define worksheet levels
+        levels = [
+            ('Those Needing Assistance', 'DOK 1-2', 'assistance'),
+            ('Average/Middle Ability', 'DOK 2-3', 'average'),
+            ('Upper Ability', 'DOK 3-4', 'upper')
+        ]
+        
+        if lesson_data['gifted_talented']:
+            levels.append(('Gifted/Talented', 'DOK 4', 'gifted'))
+        
+        for level_name, dok, key in levels:
+            doc.add_page_break()
+            doc.add_heading(f'{level_name} Worksheet', 1)
+            doc.add_heading(dok, 2)
+            
+            doc.add_paragraph(f"Name: _________________________  Date: _____________")
+            doc.add_paragraph()
+            
+            tasks = ai_content['cooperative_tasks'].get(key, ai_content['cooperative_tasks']['upper'])
+            
+            doc.add_heading('Activity:', 3)
+            doc.add_paragraph(tasks['activity'])
+            doc.add_paragraph()
+            
+            doc.add_heading('Questions:', 3)
+            for i, question in enumerate(tasks['questions'], 1):
+                doc.add_paragraph(f"{i}. {question}")
+                doc.add_paragraph()
+                doc.add_paragraph("Answer: _____________________________________________")
+                doc.add_paragraph("_______________________________________________________")
+                doc.add_paragraph()
+        
+        filename = f"Worksheets_{lesson_data['topic'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.docx"
+        output_path = os.path.join(self.output_folder, filename)
+        doc.save(output_path)
+        
+        return output_path
+    
+    def create_rubrics(self, lesson_data, ai_content):
+        """Create assessment rubrics"""
+        doc = Document()
+        
+        doc.add_heading('ASSESSMENT RUBRICS', 0)
+        doc.add_heading(f'Topic: {lesson_data['topic']}', 1)
+        
+        # Create rubric table
+        rubric_table = doc.add_table(rows=6, cols=5)
+        rubric_table.style = 'Table Grid'
+        
+        # Header
+        header_cells = rubric_table.rows[0].cells
+        header_cells[0].text = 'Criteria'
+        header_cells[1].text = 'Excellent (4)'
+        header_cells[2].text = 'Proficient (3)'
+        header_cells[3].text = 'Developing (2)'
+        header_cells[4].text = 'Beginning (1)'
+        
+        # Criteria
+        criteria = [
+            ('Understanding', 'Demonstrates exceptional depth of understanding', 'Shows solid understanding', 'Shows partial understanding', 'Shows limited understanding'),
+            ('Application', 'Applies concepts creatively to novel situations', 'Applies concepts accurately', 'Applies concepts with support', 'Struggles to apply concepts'),
+            ('Analysis', 'Provides insightful, detailed analysis', 'Provides accurate analysis', 'Provides basic analysis', 'Analysis is unclear'),
+            ('Communication', 'Communicates ideas clearly and persuasively', 'Communicates ideas clearly', 'Communication needs improvement', 'Ideas are difficult to follow'),
+            ('Collaboration', 'Excellent teamwork and leadership', 'Works well with others', 'Participates with prompting', 'Limited participation')
+        ]
+        
+        for i, (name, ex, prof, dev, beg) in enumerate(criteria, 1):
+            cells = rubric_table.rows[i].cells
+            cells[0].text = name
+            cells[1].text = ex
+            cells[2].text = prof
+            cells[3].text = dev
+            cells[4].text = beg
+        
+        filename = f"Rubrics_{lesson_data['topic'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.docx"
+        output_path = os.path.join(self.output_folder, filename)
+        doc.save(output_path)
+        
+        return output_path
+    
+    def create_question_bank(self, lesson_data, ai_content):
+        """Create question bank organized by DOK"""
+        doc = Document()
+        
+        doc.add_heading('QUESTION BANK', 0)
+        doc.add_heading(f'Topic: {lesson_data['topic']}', 1)
+        doc.add_paragraph(f'Grade: {lesson_data['grade']} | Subject: {lesson_data['subject']}')
+        
+        # Organize by DOK level
+        dok_levels = {
+            'DOK Level 1-2 (Recall & Basic Skills)': 'assistance',
+            'DOK Level 2-3 (Application & Analysis)': 'average',
+            'DOK Level 3-4 (Strategic Thinking & Extended Reasoning)': 'upper'
+        }
+        
+        if lesson_data['gifted_talented']:
+            dok_levels['DOK Level 4 (Extended Thinking & Advanced Synthesis)'] = 'gifted'
+        
+        for dok_title, key in dok_levels.items():
+            doc.add_page_break()
+            doc.add_heading(dok_title, 2)
+            
+            tasks = ai_content['cooperative_tasks'].get(key)
+            if tasks:
+                for i, question in enumerate(tasks['questions'], 1):
+                    doc.add_paragraph(f"{i}. {question}")
+                    doc.add_paragraph()
+            
+            tasks = ai_content['independent_tasks'].get(key)
+            if tasks:
+                for i, question in enumerate(tasks['questions'], len(tasks['questions']) + 1):
+                    doc.add_paragraph(f"{i}. {question}")
+                    doc.add_paragraph()
+        
+        filename = f"QuestionBank_{lesson_data['topic'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.docx"
+        output_path = os.path.join(self.output_folder, filename)
+        doc.save(output_path)
+        
+        return output_path
+    
+    def create_powerpoint(self, lesson_data, ai_content):
+        """Create PowerPoint presentation"""
+        # For now, create a simple placeholder PPT
+        try:
+            from pptx import Presentation
+            from pptx.util import Inches as PptInches
+            
+            prs = Presentation()
+            prs.slide_width = PptInches(10)
+            prs.slide_height = PptInches(7.5)
+            
+            # Title Slide
+            title_slide = prs.slides.add_slide(prs.slide_layouts[0])
+            title = title_slide.shapes.title
+            subtitle = title_slide.placeholders[1]
+            
+            title.text = lesson_data['topic']
+            subtitle.text = f"{lesson_data['subject']} | Grade {lesson_data['grade']}\nAl Adhwa Private School"
+            
+            # Save
+            filename = f"Presentation_{lesson_data['topic'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.pptx"
+            output_path = os.path.join(self.output_folder, filename)
+            prs.save(output_path)
+            
+            return output_path
+        except Exception as e:
+            print(f"Error creating PowerPoint: {e}")
+            # Return a dummy file path
+            return os.path.join(self.output_folder, "dummy.pptx")
+    
+    def package_files(self, lesson_data, file_paths):
+        """Package all files into ZIP"""
+        zip_filename = f"LessonPlan_Package_{lesson_data['subject']}_{lesson_data['topic'].replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
+        zip_path = os.path.join(self.output_folder, zip_filename)
+        
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for file_path in file_paths:
+                if file_path and os.path.exists(file_path):
+                    zipf.write(file_path, os.path.basename(file_path))
+        
+        return zip_path
