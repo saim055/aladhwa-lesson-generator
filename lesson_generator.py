@@ -79,7 +79,10 @@ class LessonPlanGenerator:
                 'status': 'error',
                 'message': str(e)
             }
-    
+       def generate_ai_content_with_gemini(self, lesson_data):
+        """Generate content using Google Gemini AI"""
+        print(f"Calling Gemini AI with key: {os.getenv('GEMINI_API_KEY')[:10]}...")  # Show first 10 chars
+        
     def generate_ai_content_with_gemini(self, lesson_data):
         """Generate content using Google Gemini AI"""
         prompt = f"""Create a detailed lesson plan for Al Adhwa Private School (UAE).
@@ -836,4 +839,5 @@ IMPORTANT:
                     zipf.write(file_path, os.path.basename(file_path))
         
         return zip_path
+
 
